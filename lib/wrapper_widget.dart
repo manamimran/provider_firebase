@@ -11,20 +11,15 @@ class Wrapper extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    return StreamBuilder<User?>(stream: authService.user, builder: (_, AsyncSnapshot<User?> snapshot){
-      if(snapshot.connectionState == ConnectionState.active){
-        final User? user =snapshot.data;
-        return user == null ?LoginScreen() :HomeScreen();
-      }
-      else{
-        return Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
-    });
+    final User? user = authService.currentUser;
 
+    if (user != null) {
+      // User is authenticated, navigate to HomeScreen
+      return HomeScreen();
+    } else {
+      // User is not authenticated, navigate to LoginScreen
+      return LoginScreen();
+    }
   }
 
 }

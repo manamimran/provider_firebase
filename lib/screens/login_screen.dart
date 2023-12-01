@@ -1,5 +1,8 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider_firebase/model_class.dart';
 import 'package:provider_firebase/screens/home_screen.dart';
 
 import '../auth_service.dart';
@@ -48,7 +51,25 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 try {
                   await authService.createUser(
-                      email_controller.text, password_controller.text);
+                      email_controller.text, password_controller.text).then((value) async {
+
+                        //validate of current user via auth
+                    var uid = authService.firebaseAuth.currentUser!.uid;
+
+                    //passing values to Model
+                    final user = User(uid: uid, email: email_controller.text);
+
+                    //creating users named collection in firestore via uid
+                    final doc = authService.firestore
+                        .collection("users")
+                        .doc(uid);
+                    // Save the Model to Firestore
+                    await doc.set(user.toMap());
+                    print('data added');
+
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()));
+                  });
                   print('New Account Created Successfully');
                   // Navigator.pop(context);
 
